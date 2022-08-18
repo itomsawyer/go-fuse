@@ -170,7 +170,7 @@ func unmount(mountPoint string, opts *MountOptions) (err error) {
 		return err
 	}
 	errBuf := bytes.Buffer{}
-	cmd := exec.Command(bin, "-u", mountPoint)
+	cmd := exec.Command(bin, "-u", mountPoint, "-z")
 	cmd.Stderr = &errBuf
 	if opts.Debug {
 		log.Printf("unmount: executing %q", cmd.Args)
