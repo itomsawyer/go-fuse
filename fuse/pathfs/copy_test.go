@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hanwen/go-fuse/v2/internal/testutil"
+	"github.com/itomsawyer/go-fuse/v2/internal/testutil"
 )
 
 func TestCopyFile(t *testing.T) {

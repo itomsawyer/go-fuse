@@ -10,8 +10,8 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/hanwen/go-fuse/v2/fs"
-	"github.com/hanwen/go-fuse/v2/fuse"
+	"github.com/itomsawyer/go-fuse/v2/fs"
+	"github.com/itomsawyer/go-fuse/v2/fuse"
 )
 
 type StatFS struct {

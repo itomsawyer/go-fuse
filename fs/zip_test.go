@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"testing"
 
-	"github.com/hanwen/go-fuse/v2/fs"
+	"github.com/itomsawyer/go-fuse/v2/fs"
 )
 
 var testData = map[string]string{

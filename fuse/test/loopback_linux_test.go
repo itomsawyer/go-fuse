@@ -16,8 +16,8 @@ import (
 
 	"golang.org/x/sys/unix"
 
-	"github.com/hanwen/go-fuse/v2/fuse"
-	"github.com/hanwen/go-fuse/v2/internal/testutil"
+	"github.com/itomsawyer/go-fuse/v2/fuse"
+	"github.com/itomsawyer/go-fuse/v2/internal/testutil"
 )
 
 var enableOverlayfsTest bool
