@@ -318,6 +318,7 @@ func (ms *Server) readRequest(exitIdle bool) (req *request, code Status) {
 	ms.reqMu.Unlock()
 
 	req = ms.reqPool.Get().(*request)
+	req.reset()
 	dest := ms.readPool.Get().([]byte)
 
 	var n int
