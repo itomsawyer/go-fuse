@@ -63,6 +63,15 @@ type request struct {
 	smallInputBuf [128]byte
 }
 
+func (r *request) reset() {
+	select {
+	case <-r.cancel:
+		// reset cancel chan for avoid reusing previously closed cancel chan
+		r.cancel = make(chan struct{})
+	default:
+	}
+}
+
 func (r *request) clear() {
 	r.inputBuf = nil
 	r.inHeader = nil
