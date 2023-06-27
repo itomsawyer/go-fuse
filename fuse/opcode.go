@@ -502,6 +502,11 @@ func doInterrupt(server *Server, req *request) {
 	server.reqMu.Lock()
 	defer server.reqMu.Unlock()
 
+	if server.opts.IgnoreInterrupt {
+		req.status = EINTR
+		return
+	}
+
 	// This is slow, but this operation is rare.
 	for _, inflight := range server.reqInflight {
 		if input.Unique == inflight.inHeader.Unique && !inflight.interrupted {

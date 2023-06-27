@@ -283,6 +283,10 @@ type MountOptions struct {
 	// LazyUnmount is used to calling fusermount with -z flag which make unmount
 	// works even if resource is still busy
 	LazyUnmount bool
+
+	// IgnoreInterrupt is used to ignore _OP_INTERRUPT request
+	// refers to https://www.kernel.org/doc/html/next/filesystems/fuse.html#interrupting-filesystem-operations
+	IgnoreInterrupt bool
 }
 
 // RawFileSystem is an interface close to the FUSE wire protocol.
