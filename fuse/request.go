@@ -75,6 +75,16 @@ func (r *request) clear() {
 	r.startTime = time.Time{}
 	r.handler = nil
 	r.readResult = nil
+	r.resetCancel()
+}
+
+func (r *request) resetCancel() {
+	select {
+	case <-r.cancel:
+		// reset cancel chan for avoid reusing previously closed cancel chan
+		r.cancel = make(chan struct{})
+	default:
+	}
 }
 
 func (r *request) InputDebug() string {
