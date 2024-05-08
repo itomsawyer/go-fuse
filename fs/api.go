@@ -9,7 +9,7 @@
 // To create a file system, you should first define types for the
 // nodes of the file system tree.
 //
-//	struct myNode {
+//	type myNode struct {
 //	   fs.Inode
 //	}
 //
@@ -138,6 +138,67 @@
 // conditions. It is strongly recommended to test your FUSE file
 // system issuing file operations in parallel, and using the race
 // detector to weed out data races.
+//
+// # Deadlocks
+//
+// The Go runtime multiplexes Goroutines onto operating system
+// threads, and makes assumptions that some system calls do not
+// block. When accessing a file system from the same process that
+// serves the file system (e.g. in unittests), this can lead to
+// deadlocks, especially when GOMAXPROCS=1, when the Go runtime
+// assumes a system call does not block, but actually is served by the
+// Go-FUSE process.
+//
+// The following deadlocks are known:
+//
+// 1. Spawning a subprocess uses a fork/exec sequence: the process
+// forks itself into a parent and child. The parent waits for the
+// child to signal that the exec failed or succeeded, while the child
+// prepares for calling exec(). Any setup step in the child that
+// triggers a FUSE request can cause a deadlock.
+//
+// 1a. If the subprocess has a directory specified, the child will
+// chdir into that directory. This generates an ACCESS operation on
+// the directory.
+//
+// This deadlock can be avoided by disabling the ACCESS
+// operation: return syscall.ENOSYS in the Access implementation, and
+// ensure it is triggered called before initiating the subprocess.
+//
+// 1b. If the subprocess inherits files, the child process uses dup3()
+// to remap file descriptors. If the destination fd happens to be
+// backed by Go-FUSE, the dup3() call will implicitly close the fd,
+// generating a FLUSH operation, eg.
+//
+//	f1, err := os.Open("/fusemnt/file1")
+//	// f1.Fd() == 3
+//	f2, err := os.Open("/fusemnt/file1")
+//	// f2.Fd() == 4
+//
+//	cmd := exec.Command("/bin/true")
+//	cmd.ExtraFiles = []*os.File{f2}
+//	// f2 (fd 4) is moved to fd 3. Deadlocks with GOMAXPROCS=1.
+//	cmd.Start()
+//
+// This deadlock can be avoided by ensuring that file descriptors
+// pointing into FUSE mounts and file descriptors passed into
+// subprocesses do not overlap, e.g. inserting the following before
+// the above example:
+//
+//	for {
+//		f, _ := os.Open("/dev/null")
+//		defer f.Close()
+//		if f.Fd() > 3 {
+//			break
+//		}
+//	}
+//
+// 2. The Go runtime uses the epoll system call to understand which
+// goroutines can respond to I/O.  The runtime assumes that epoll does
+// not block, but if files are on a FUSE filesystem, the kernel will
+// generate a POLL operation. To prevent this from happening, Go-FUSE
+// disables the POLL opcode on mount. To ensure this has happened, call
+// WaitMount.
 //
 // # Dynamically discovered file systems
 //

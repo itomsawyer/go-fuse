@@ -41,10 +41,6 @@ func (n *LoopbackNode) Listxattr(ctx context.Context, dest []byte) (uint32, sysc
 	return 0, syscall.ENOSYS
 }
 
-func (n *LoopbackNode) renameExchange(name string, newparent InodeEmbedder, newName string) syscall.Errno {
-	return syscall.ENOSYS
-}
-
 func (f *loopbackFile) Allocate(ctx context.Context, off uint64, sz uint64, mode uint32) syscall.Errno {
 	// TODO: Handle `mode` parameter.
 
@@ -126,4 +122,8 @@ func (n *LoopbackNode) CopyFileRange(ctx context.Context, fhIn FileHandle,
 	offIn uint64, out *Inode, fhOut FileHandle, offOut uint64,
 	len uint64, flags uint64) (uint32, syscall.Errno) {
 	return 0, syscall.ENOSYS
+}
+
+func intDev(dev uint32) int {
+	return int(dev)
 }

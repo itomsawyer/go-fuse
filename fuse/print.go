@@ -20,43 +20,35 @@ var (
 		READ_LOCKOWNER: "LOCKOWNER",
 	})
 	initFlagNames = newFlagNames(map[int64]string{
-		CAP_ASYNC_READ:          "ASYNC_READ",
-		CAP_POSIX_LOCKS:         "POSIX_LOCKS",
-		CAP_FILE_OPS:            "FILE_OPS",
-		CAP_ATOMIC_O_TRUNC:      "ATOMIC_O_TRUNC",
-		CAP_EXPORT_SUPPORT:      "EXPORT_SUPPORT",
-		CAP_BIG_WRITES:          "BIG_WRITES",
-		CAP_DONT_MASK:           "DONT_MASK",
-		CAP_SPLICE_WRITE:        "SPLICE_WRITE",
-		CAP_SPLICE_MOVE:         "SPLICE_MOVE",
-		CAP_SPLICE_READ:         "SPLICE_READ",
-		CAP_FLOCK_LOCKS:         "FLOCK_LOCKS",
-		CAP_IOCTL_DIR:           "IOCTL_DIR",
-		CAP_AUTO_INVAL_DATA:     "AUTO_INVAL_DATA",
-		CAP_READDIRPLUS:         "READDIRPLUS",
-		CAP_READDIRPLUS_AUTO:    "READDIRPLUS_AUTO",
-		CAP_ASYNC_DIO:           "ASYNC_DIO",
-		CAP_WRITEBACK_CACHE:     "WRITEBACK_CACHE",
-		CAP_NO_OPEN_SUPPORT:     "NO_OPEN_SUPPORT",
-		CAP_PARALLEL_DIROPS:     "PARALLEL_DIROPS",
-		CAP_POSIX_ACL:           "POSIX_ACL",
-		CAP_HANDLE_KILLPRIV:     "HANDLE_KILLPRIV",
-		CAP_ABORT_ERROR:         "ABORT_ERROR",
-		CAP_MAX_PAGES:           "MAX_PAGES",
-		CAP_CACHE_SYMLINKS:      "CACHE_SYMLINKS",
-		CAP_NO_OPENDIR_SUPPORT:  "NO_OPENDIR_SUPPORT",
-		CAP_EXPLICIT_INVAL_DATA: "EXPLICIT_INVAL_DATA",
-		CAP_MAP_ALIGNMENT:       "MAP_ALIGNMENT",
-		CAP_SUBMOUNTS:           "SUBMOUNTS",
-		CAP_HANDLE_KILLPRIV_V2:  "HANDLE_KILLPRIV_V2",
-		CAP_SETXATTR_EXT:        "SETXATTR_EXT",
-		CAP_INIT_EXT:            "INIT_EXT",
-		CAP_INIT_RESERVED:       "INIT_RESERVED",
-		CAP_SECURITY_CTX:        "SECURITY_CTX",
-		CAP_HAS_INODE_DAX:       "HAS_INODE_DAX",
-		CAP_CREATE_SUPP_GROUP:   "CREATE_SUPP_GROUP",
-		CAP_HAS_EXPIRE_ONLY:     "HAS_EXPIRE_ONLY",
-		CAP_DIRECT_IO_RELAX:     "DIRECT_IO_RELAX",
+		CAP_ASYNC_READ:        "ASYNC_READ",
+		CAP_POSIX_LOCKS:       "POSIX_LOCKS",
+		CAP_FILE_OPS:          "FILE_OPS",
+		CAP_ATOMIC_O_TRUNC:    "ATOMIC_O_TRUNC",
+		CAP_EXPORT_SUPPORT:    "EXPORT_SUPPORT",
+		CAP_BIG_WRITES:        "BIG_WRITES",
+		CAP_DONT_MASK:         "DONT_MASK",
+		CAP_SPLICE_WRITE:      "SPLICE_WRITE",
+		CAP_SPLICE_MOVE:       "SPLICE_MOVE",
+		CAP_SPLICE_READ:       "SPLICE_READ",
+		CAP_FLOCK_LOCKS:       "FLOCK_LOCKS",
+		CAP_IOCTL_DIR:         "IOCTL_DIR",
+		CAP_AUTO_INVAL_DATA:   "AUTO_INVAL_DATA",
+		CAP_READDIRPLUS:       "READDIRPLUS",
+		CAP_READDIRPLUS_AUTO:  "READDIRPLUS_AUTO",
+		CAP_ASYNC_DIO:         "ASYNC_DIO",
+		CAP_WRITEBACK_CACHE:   "WRITEBACK_CACHE",
+		CAP_NO_OPEN_SUPPORT:   "NO_OPEN_SUPPORT",
+		CAP_PARALLEL_DIROPS:   "PARALLEL_DIROPS",
+		CAP_POSIX_ACL:         "POSIX_ACL",
+		CAP_HANDLE_KILLPRIV:   "HANDLE_KILLPRIV",
+		CAP_ABORT_ERROR:       "ABORT_ERROR",
+		CAP_MAX_PAGES:         "MAX_PAGES",
+		CAP_CACHE_SYMLINKS:    "CACHE_SYMLINKS",
+		CAP_SECURITY_CTX:      "SECURITY_CTX",
+		CAP_HAS_INODE_DAX:     "HAS_INODE_DAX",
+		CAP_CREATE_SUPP_GROUP: "CREATE_SUPP_GROUP",
+		CAP_HAS_EXPIRE_ONLY:   "HAS_EXPIRE_ONLY",
+		CAP_DIRECT_IO_RELAX:   "DIRECT_IO_RELAX",
 	})
 	releaseFlagNames = newFlagNames(map[int64]string{
 		RELEASE_FLUSH: "FLUSH",
@@ -72,7 +64,6 @@ var (
 		int64(syscall.O_NONBLOCK):  "NONBLOCK",
 		int64(os.O_SYNC):           "SYNC",
 		int64(os.O_TRUNC):          "TRUNC",
-		0x8000:                     "LARGEFILE",
 		int64(syscall.O_CLOEXEC):   "CLOEXEC",
 		int64(syscall.O_DIRECTORY): "DIRECTORY",
 	})
@@ -359,4 +350,19 @@ func Print(obj interface{}) string {
 		return t.string()
 	}
 	return fmt.Sprintf("%T: %v", obj, obj)
+}
+
+func (a *Attr) string() string {
+	return fmt.Sprintf(
+		"{M0%o SZ=%d L=%d "+
+			"%d:%d "+
+			"B%d*%d i%d:%d "+
+			"A %f "+
+			"M %f "+
+			"C %f}",
+		a.Mode, a.Size, a.Nlink,
+		a.Uid, a.Gid,
+		a.Blocks, a.Blksize,
+		a.Rdev, a.Ino, ft(a.Atime, a.Atimensec), ft(a.Mtime, a.Mtimensec),
+		ft(a.Ctime, a.Ctimensec))
 }

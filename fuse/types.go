@@ -44,9 +44,6 @@ const (
 	// ENOSYS Function not implemented
 	ENOSYS = Status(syscall.ENOSYS)
 
-	// ENODATA No data available
-	ENODATA = Status(syscall.ENODATA)
-
 	// ENOTDIR Not a directory
 	ENOTDIR = Status(syscall.ENOTDIR)
 
@@ -276,38 +273,30 @@ type OpenOut struct {
 // * https://github.com/libfuse/libfuse/blob/master/include/fuse_common.h
 // This file has CAP_HANDLE_KILLPRIV and CAP_POSIX_ACL reversed!
 const (
-	CAP_ASYNC_READ          = (1 << 0)
-	CAP_POSIX_LOCKS         = (1 << 1)
-	CAP_FILE_OPS            = (1 << 2)
-	CAP_ATOMIC_O_TRUNC      = (1 << 3)
-	CAP_EXPORT_SUPPORT      = (1 << 4)
-	CAP_BIG_WRITES          = (1 << 5)
-	CAP_DONT_MASK           = (1 << 6)
-	CAP_SPLICE_WRITE        = (1 << 7)
-	CAP_SPLICE_MOVE         = (1 << 8)
-	CAP_SPLICE_READ         = (1 << 9)
-	CAP_FLOCK_LOCKS         = (1 << 10)
-	CAP_IOCTL_DIR           = (1 << 11)
-	CAP_AUTO_INVAL_DATA     = (1 << 12)
-	CAP_READDIRPLUS         = (1 << 13)
-	CAP_READDIRPLUS_AUTO    = (1 << 14)
-	CAP_ASYNC_DIO           = (1 << 15)
-	CAP_WRITEBACK_CACHE     = (1 << 16)
-	CAP_NO_OPEN_SUPPORT     = (1 << 17)
-	CAP_PARALLEL_DIROPS     = (1 << 18)
-	CAP_HANDLE_KILLPRIV     = (1 << 19)
-	CAP_POSIX_ACL           = (1 << 20)
-	CAP_ABORT_ERROR         = (1 << 21)
-	CAP_MAX_PAGES           = (1 << 22)
-	CAP_CACHE_SYMLINKS      = (1 << 23)
-	CAP_NO_OPENDIR_SUPPORT  = (1 << 24)
-	CAP_EXPLICIT_INVAL_DATA = (1 << 25)
-	CAP_MAP_ALIGNMENT       = (1 << 26)
-	CAP_SUBMOUNTS           = (1 << 27)
-	CAP_HANDLE_KILLPRIV_V2  = (1 << 28)
-	CAP_SETXATTR_EXT        = (1 << 29)
-	CAP_INIT_EXT            = (1 << 30)
-	CAP_INIT_RESERVED       = (1 << 31)
+	CAP_ASYNC_READ       = (1 << 0)
+	CAP_POSIX_LOCKS      = (1 << 1)
+	CAP_FILE_OPS         = (1 << 2)
+	CAP_ATOMIC_O_TRUNC   = (1 << 3)
+	CAP_EXPORT_SUPPORT   = (1 << 4)
+	CAP_BIG_WRITES       = (1 << 5)
+	CAP_DONT_MASK        = (1 << 6)
+	CAP_SPLICE_WRITE     = (1 << 7)
+	CAP_SPLICE_MOVE      = (1 << 8)
+	CAP_SPLICE_READ      = (1 << 9)
+	CAP_FLOCK_LOCKS      = (1 << 10)
+	CAP_IOCTL_DIR        = (1 << 11)
+	CAP_AUTO_INVAL_DATA  = (1 << 12)
+	CAP_READDIRPLUS      = (1 << 13)
+	CAP_READDIRPLUS_AUTO = (1 << 14)
+	CAP_ASYNC_DIO        = (1 << 15)
+	CAP_WRITEBACK_CACHE  = (1 << 16)
+	CAP_NO_OPEN_SUPPORT  = (1 << 17)
+	CAP_PARALLEL_DIROPS  = (1 << 18)
+	CAP_HANDLE_KILLPRIV  = (1 << 19)
+	CAP_POSIX_ACL        = (1 << 20)
+	CAP_ABORT_ERROR      = (1 << 21)
+	CAP_MAX_PAGES        = (1 << 22)
+	CAP_CACHE_SYMLINKS   = (1 << 23)
 
 	/* bits 32..63 get shifted down 32 bits into the Flags2 field */
 	CAP_SECURITY_CTX      = (1 << 32)
@@ -700,4 +689,73 @@ func (lk *FileLock) FromFlockT(flockT *syscall.Flock_t) {
 		}
 	}
 	lk.Pid = uint32(flockT.Pid)
+}
+
+const (
+	// Mask for GetAttrIn.Flags. If set, GetAttrIn has a file handle set.
+	FUSE_GETATTR_FH = (1 << 0)
+)
+
+type GetAttrIn struct {
+	InHeader
+
+	Flags_ uint32
+	Dummy  uint32
+	Fh_    uint64
+}
+
+// Flags accesses the flags. This is a method, because OSXFuse does not
+// have GetAttrIn flags.
+func (g *GetAttrIn) Flags() uint32 {
+	return g.Flags_
+}
+
+// Fh accesses the file handle. This is a method, because OSXFuse does not
+// have GetAttrIn flags.
+func (g *GetAttrIn) Fh() uint64 {
+	return g.Fh_
+}
+
+type MknodIn struct {
+	InHeader
+
+	// Mode to use, including the Umask value
+	Mode    uint32
+	Rdev    uint32
+	Umask   uint32
+	Padding uint32
+}
+
+type CreateIn struct {
+	InHeader
+	Flags uint32
+
+	// Mode for the new file; already takes Umask into account.
+	Mode uint32
+
+	// Umask used for this create call.
+	Umask   uint32
+	Padding uint32
+}
+
+type ReadIn struct {
+	InHeader
+	Fh        uint64
+	Offset    uint64
+	Size      uint32
+	ReadFlags uint32
+	LockOwner uint64
+	Flags     uint32
+	Padding   uint32
+}
+
+type WriteIn struct {
+	InHeader
+	Fh         uint64
+	Offset     uint64
+	Size       uint32
+	WriteFlags uint32
+	LockOwner  uint64
+	Flags      uint32
+	Padding    uint32
 }
